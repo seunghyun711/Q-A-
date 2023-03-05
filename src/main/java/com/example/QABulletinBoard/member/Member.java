@@ -1,6 +1,7 @@
 package com.example.QABulletinBoard.member;
 
 import com.example.QABulletinBoard.question.Question;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,7 +32,7 @@ public class Member {
     @Column(nullable = false)
     private Role role = Role.MEMBER;
 
-    @OneToMany(mappedBy = "MEMBER_ID") // Question - Member 간 다대일 양방향 매핑
+    @OneToMany(mappedBy = "member") // Question - Member 간 다대일 양방향 매핑
     private List<Question> questions = new ArrayList<>();
 
     public enum Role{
