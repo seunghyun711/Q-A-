@@ -1,5 +1,7 @@
 package com.example.QABulletinBoard.member;
 
+import com.example.QABulletinBoard.exception.BusinessLogicException;
+import com.example.QABulletinBoard.exception.ExceptionCode;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,8 +28,8 @@ public class MemberService {
 
     private void verifyExistsEmail(String email) {
         Optional<Member> member = memberRepository.findByEmail(email);
-        if (member.isPresent()) {
-            System.out.println("이미 존재하는 회원입니다.");
+        if (member.isPresent()) { // 이미 존재하는 회원인 경우 예외 발생
+            throw new BusinessLogicException(ExceptionCode.MEMBER_EXIXTS);
         }
     }
 }
