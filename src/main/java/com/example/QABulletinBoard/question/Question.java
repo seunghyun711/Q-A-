@@ -26,12 +26,17 @@ public class Question {
     @Column(nullable = false)
     private LocalDateTime created_At = LocalDateTime.now(); // 게시글 작성 시간
 
+    @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private QuestionStatus questionStatus = QuestionStatus.QUESTION_REGISTRATION; // 질문 게시글 상태
 
     @ManyToOne // 다대일 매핑 : Question(N) - Member(1)
     @JoinColumn(name = "MEMBER_ID")
     private Member member;
+
+    public void addMember(Member member) {
+        this.member = member;
+    }
 
     public enum QuestionStatus{
         QUESTION_REGISTRATION("질문 등록 상태"),
