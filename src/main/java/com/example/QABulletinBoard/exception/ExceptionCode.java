@@ -4,7 +4,8 @@ import lombok.Getter;
 
 public enum ExceptionCode {
     MEMBER_NOT_FOUND(404,"MEMBER NOT FOUND"),
-    MEMBER_EXIXTS(404,"MEMBER EXISTS");
+    MEMBER_EXISTS(404,"MEMBER EXISTS"),
+    CANNOT_REGISTRATION_QUESTION(404, "MANAGER CANNOT REGISTRATION QUESTION");
 
     @Getter
     private int status;
