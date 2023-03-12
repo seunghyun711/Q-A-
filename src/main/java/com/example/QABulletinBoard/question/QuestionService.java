@@ -36,10 +36,38 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
+    public Question updateQuestion(Question question,long memberId) {
+        // 1. 수정하려는 게시글이 있는지 확인
+        findVerifiedQuestion(question);
+
+        Optional.ofNullable(question.getTitle())
+                .ifPresent(title -> question.setTitle(title));
+        Optional.ofNullable(question.getContent())
+                .ifPresent(content -> question.setContent(content));
+        Optional.ofNullable(question.getSecretStatus())
+                .ifPresent(secretStatus -> question.setSecretStatus(secretStatus));
+
+        return questionRepository.save(question);
+
+    }
+
     private void checkMemberRole(long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
         if (member.get().getMemberId() == 1) {
             throw new BusinessLogicException(ExceptionCode.CANNOT_REGISTRATION_QUESTION);
+        }
+    }
+
+    public void findVerifiedQuestion(Question question) {
+        Optional<Question> optionalQuestion =
+                questionRepository.findById(question.getQuestionId());
+        Question findQuestion =
+                optionalQuestion.orElseThrow(() ->
+                        new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
+
+        // 수정하려는 회원과 게시글을 작성한 회원이 동일한지 확인
+        if (question.getMember().getMemberId() != findQuestion.getMember().getMemberId()) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_MATCHED);
         }
     }
 }

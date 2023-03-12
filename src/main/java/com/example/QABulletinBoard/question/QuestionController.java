@@ -1,15 +1,15 @@
 package com.example.QABulletinBoard.question;
 
+import com.example.QABulletinBoard.dto.SingleResponseDto;
 import com.example.QABulletinBoard.question.mapper.QuestionMapper;
 import com.example.QABulletinBoard.utils.UriCreator;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.net.URI;
 
 @RestController
@@ -27,11 +27,23 @@ public class QuestionController {
 
     // 질문 등록
     @PostMapping
-    public ResponseEntity createQuestion(@Valid @RequestBody QuestionPostDto questionPostDto) {
+    public ResponseEntity createQuestion(@Valid @RequestBody QuestionDto.Post questionPostDto) {
         Question question = mapper.questionPostDtoToQuestion(questionPostDto);
         questionService.createQuestion(question);
         URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, question.getQuestionId());
 
         return ResponseEntity.created(location).build();
+    }
+
+    @PatchMapping("/{question-id}")
+    public ResponseEntity patchQuestion(@PathVariable("question-id") @Positive long questionId,
+                                         @Valid @RequestBody QuestionDto.Patch questionPatchDto) {
+        questionPatchDto.setQuestionId(questionId);
+        Question question = questionService.updateQuestion(mapper.questionPatchDtoToQuestion(questionPatchDto), questionPatchDto.getMemberId());
+
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(mapper.questionToQuestionResponse(question)),
+                HttpStatus.OK
+        );
     }
 }

@@ -41,7 +41,7 @@ public class Question {
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
-    private SecretStatus secretStatus = SecretStatus.SECRET; // 질문 공개 여부 -> 기본 값 : 공개글
+    private SecretStatus secretStatus; // 질문 공개 여부 -> 기본 값 : 공개글
 
     @ManyToOne // Question - Member 다대일 매핑
     @JoinColumn(name = "MEMBER_ID")
