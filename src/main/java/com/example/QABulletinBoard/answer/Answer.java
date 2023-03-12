@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Setter
@@ -27,5 +28,11 @@ public class Answer {
     @ManyToOne
     @JoinColumn(name = "QUESTION_ID")
     private Question question;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt = LocalDateTime.now(); // 질문 작성 시간
+
+    @Column(nullable = false)
+    private LocalDateTime modifiedAt = LocalDateTime.now(); // 질문 수정 시간
 
 }
