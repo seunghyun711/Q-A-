@@ -71,4 +71,13 @@ public class QuestionController {
         return new ResponseEntity<>(mapper.questionsToQuestionResponse(questions),
                 HttpStatus.OK);
     }
+
+    // 게시글 삭제
+    @DeleteMapping("{question-id}")
+    public ResponseEntity deleteQuestion(@PathVariable("question-id") @Positive long questionId,
+                                         @Positive @RequestParam long memberId) {
+        questionService.deleteQuestion(questionId, memberId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

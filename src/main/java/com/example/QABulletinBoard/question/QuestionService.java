@@ -104,6 +104,33 @@ public class QuestionService {
         return questionRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
     }
 
+    /*
+    질문 삭제
+    1. 회원 검증
+    2. 질문 존재 여부 확인
+    3. 질문을 삭제하려는 회원이 해당 질문의 작성자인지 확인
+     */
+    public void deleteQuestion(long questionId, long memberId) {
+        // 1. 회원 검증
+        memberService.findVerifiedMember(memberId);
+
+        // 2. 질문 존재 여부 확인
+        Question question = findVerifiedQuestion(questionId);
+
+        // 3. 질문을 삭제하려는 회원이 해당 질문의 작성자인지 확인
+        if (question.getMember().getMemberId() != memberId) { // 삭제하려는 회원과 작성자가 다른 경우
+            throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
+        }else{
+            if (question.getQuestionStatus() == Question.QuestionStatus.QUESTION_DELETE) { // 이미 게시글이 삭제된 경우
+                throw new BusinessLogicException(ExceptionCode.QUESTION_DELETED);
+            }else{
+                question.setQuestionStatus(Question.QuestionStatus.QUESTION_DELETE); // 정상적으로 삭제된 경우 게시글을 삭제 상태로 변경
+            }
+        }
+        questionRepository.save(question);
+
+    }
+
     private void checkMemberRole(long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
         if (member.get().getMemberId() == 1) {
@@ -142,5 +169,6 @@ public class QuestionService {
         question.setViews(question.getViews() + 1);
         questionRepository.save(question);
     }
+
 
 }
