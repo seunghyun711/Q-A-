@@ -36,10 +36,21 @@ public class QuestionService {
         return questionRepository.save(question);
     }
 
-    public Question updateQuestion(Question question,long memberId) {
+    /*
+     질문 수정
+     1. 수정하려는 게시글이 있는지 확인
+     2. 수정
+     */
+    public Question updateQuestion(Question question) {
         // 1. 수정하려는 게시글이 있는지 확인
-        findVerifiedQuestion(question);
+        Question findQuestion = findVerifiedQuestion(question);
 
+        // 수정하려는 회원과 게시글을 작성한 회원이 동일한지 확인
+        if (question.getMember().getMemberId() != findQuestion.getMember().getMemberId()) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_MATCHED);
+        }
+
+        // 2. 수정
         Optional.ofNullable(question.getTitle())
                 .ifPresent(title -> question.setTitle(title));
         Optional.ofNullable(question.getContent())
@@ -51,6 +62,14 @@ public class QuestionService {
 
     }
 
+    /*
+    질문 단건 조회
+    1. 조회하려는 회원이 관리자이거나 질문글 작성자인지 확인
+     */
+//    public Question findQuestion(Question question){
+//
+//    }
+
     private void checkMemberRole(long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
         if (member.get().getMemberId() == 1) {
@@ -58,16 +77,14 @@ public class QuestionService {
         }
     }
 
-    public void findVerifiedQuestion(Question question) {
+    public Question findVerifiedQuestion(Question question) {
         Optional<Question> optionalQuestion =
                 questionRepository.findById(question.getQuestionId());
         Question findQuestion =
                 optionalQuestion.orElseThrow(() ->
                         new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
+        return findQuestion;
 
-        // 수정하려는 회원과 게시글을 작성한 회원이 동일한지 확인
-        if (question.getMember().getMemberId() != findQuestion.getMember().getMemberId()) {
-            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_MATCHED);
-        }
     }
+
 }
