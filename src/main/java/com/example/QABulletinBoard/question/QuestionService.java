@@ -5,9 +5,13 @@ import com.example.QABulletinBoard.exception.ExceptionCode;
 import com.example.QABulletinBoard.member.Member;
 import com.example.QABulletinBoard.member.MemberRepository;
 import com.example.QABulletinBoard.member.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import javax.swing.*;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -82,7 +86,23 @@ public class QuestionService {
 
     /*
     질문 목록 조회
+    1. 회원 검증
+    2. 정렬기준에 따라서 페이지 정렬
      */
+    public Page<Question> findQuestions(long memberId, int page, int size, String sortBy) {
+        // 1, 회원 검증
+        memberService.findVerifiedMember(memberId);
+
+        // 2. 정렬기준에 따라 페이지 정렬
+        if (sortBy.equals("new")) { // 최신순
+            return questionRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        } else if (sortBy.equals("old")) { // 오래된 순
+            return questionRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").ascending()));
+        }
+
+        // 기본 값은 최신순
+        return questionRepository.findAll(PageRequest.of(page, size, Sort.by("createdAt").descending()));
+    }
 
     private void checkMemberRole(long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
@@ -118,7 +138,7 @@ public class QuestionService {
         }
     }
 
-    private void addViews(Question question) {
+    private void addViews(Question question) { // 조회수 증가 로직
         question.setViews(question.getViews() + 1);
         questionRepository.save(question);
     }

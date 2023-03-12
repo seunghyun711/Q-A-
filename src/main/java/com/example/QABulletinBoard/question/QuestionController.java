@@ -3,6 +3,7 @@ package com.example.QABulletinBoard.question;
 import com.example.QABulletinBoard.dto.SingleResponseDto;
 import com.example.QABulletinBoard.question.mapper.QuestionMapper;
 import com.example.QABulletinBoard.utils.UriCreator;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @Validated
@@ -56,5 +58,17 @@ public class QuestionController {
                 new SingleResponseDto<>(mapper.questionToQuestionResponse(findQuestion)),
                 HttpStatus.OK
         );
+    }
+
+    // 게시글 목록 조회
+    @GetMapping
+    public ResponseEntity getQuestions(@Positive @RequestParam long memberId,
+                                       @Positive @RequestParam int page,
+                                       @Positive @RequestParam int size,
+                                       @RequestParam String sortBy) {
+        Page<Question> questionPage = questionService.findQuestions(memberId, page - 1, size, sortBy);
+        List<Question> questions = questionPage.getContent();
+        return new ResponseEntity<>(mapper.questionsToQuestionResponse(questions),
+                HttpStatus.OK);
     }
 }

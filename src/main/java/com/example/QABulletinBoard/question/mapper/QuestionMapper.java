@@ -6,6 +6,8 @@ import com.example.QABulletinBoard.question.QuestionDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface QuestionMapper {
     // QuestionPostDto -> Question
@@ -45,4 +47,6 @@ public interface QuestionMapper {
 
     @Mapping(source = "member.memberId",target = "memberId")
     QuestionDto.Response questionToQuestionResponse(Question question);
+
+    List<QuestionDto.Response> questionsToQuestionResponse(List<Question> questions);
 }
