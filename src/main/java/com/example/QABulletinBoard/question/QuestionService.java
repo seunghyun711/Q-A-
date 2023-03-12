@@ -7,6 +7,7 @@ import com.example.QABulletinBoard.member.MemberRepository;
 import com.example.QABulletinBoard.member.MemberService;
 import org.springframework.stereotype.Service;
 
+import javax.swing.*;
 import java.util.Optional;
 
 @Service
@@ -43,7 +44,7 @@ public class QuestionService {
      */
     public Question updateQuestion(Question question) {
         // 1. 수정하려는 게시글이 있는지 확인
-        Question findQuestion = findVerifiedQuestion(question);
+        Question findQuestion = findVerifiedQuestion(question.getQuestionId());
 
         // 수정하려는 회원과 게시글을 작성한 회원이 동일한지 확인
         if (question.getMember().getMemberId() != findQuestion.getMember().getMemberId()) {
@@ -64,11 +65,20 @@ public class QuestionService {
 
     /*
     질문 단건 조회
-    1. 조회하려는 회원이 관리자이거나 질문글 작성자인지 확인
+    1. 해당 게시글을 작성한 회원이 존재하는지 확인
+    2. 해당 게시글 존재하는지 확인
+    2. 조회하려는 회원이 관리자이거나 질문글 작성자인지 확인
      */
-//    public Question findQuestion(Question question){
-//
-//    }
+    public Question findQuestion(long questionId, long memberId){
+        // 1. 해당 게시글을 작성한 회원이 존재하는지 확인
+        Member member = memberService.findVerifiedMember(memberId);
+
+        // 2. 해당 게시글 존재하는지 확인
+        Question findQuestion = findVerifiedQuestion(questionId);
+
+        return checkAuthority(findQuestion, member);
+
+    }
 
     private void checkMemberRole(long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
@@ -77,14 +87,31 @@ public class QuestionService {
         }
     }
 
-    public Question findVerifiedQuestion(Question question) {
+    public Question findVerifiedQuestion(long questionId) {
         Optional<Question> optionalQuestion =
-                questionRepository.findById(question.getQuestionId());
+                questionRepository.findById(questionId);
         Question findQuestion =
                 optionalQuestion.orElseThrow(() ->
                         new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
         return findQuestion;
 
+    }
+
+    private Question checkAuthority(Question question, Member member) {
+        if (question.getQuestionStatus() == Question.QuestionStatus.QUESTION_DELETE) { // 게시글이 삭제된 상태인 경우 예외처리
+            throw new BusinessLogicException(ExceptionCode.QUESTION_DELETED);
+        } else if (question.getSecretStatus() == Question.SecretStatus.SECRET) { // 비밀글인 경우
+            // 조회하는 회원이 해당 비밀 게시글의 작성자이거나 관리자인 경우
+            if (question.getMember().getMemberId() == member.getMemberId() || question.getMember().getEmail().equals("admin@gmail.com")) {
+                question.setViews(question.getViews() + 1); // 조회수 증가
+                return question;
+            }else{
+                throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
+            }
+        }else{ // 공개글인 경우 그냥 조회수 증가
+            question.setViews(question.getViews() + 1);
+            return question;
+        }
     }
 
 }

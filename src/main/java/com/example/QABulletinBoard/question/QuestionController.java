@@ -39,10 +39,21 @@ public class QuestionController {
     public ResponseEntity patchQuestion(@PathVariable("question-id") @Positive long questionId,
                                          @Valid @RequestBody QuestionDto.Patch questionPatchDto) {
         questionPatchDto.setQuestionId(questionId);
-        Question question = questionService.updateQuestion(mapper.questionPatchDtoToQuestion(questionPatchDto), questionPatchDto.getMemberId());
+        Question question = questionService.updateQuestion(mapper.questionPatchDtoToQuestion(questionPatchDto));
 
         return new ResponseEntity<>(
                 new SingleResponseDto<>(mapper.questionToQuestionResponse(question)),
+                HttpStatus.OK
+        );
+    }
+
+    // 게시글 단건 조회
+    @GetMapping("/{question-id}")
+    public ResponseEntity getQuestion(@PathVariable("question-id") @Positive long questionId,
+                                      @Positive @RequestParam long memberId) {
+        Question findQuestion = questionService.findQuestion(questionId, memberId);
+        return new ResponseEntity<>(
+                new SingleResponseDto<>(mapper.questionToQuestionResponse(findQuestion)),
                 HttpStatus.OK
         );
     }
