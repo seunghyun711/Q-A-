@@ -80,6 +80,10 @@ public class QuestionService {
 
     }
 
+    /*
+    질문 목록 조회
+     */
+
     private void checkMemberRole(long memberId) {
         Optional<Member> member = memberRepository.findById(memberId);
         if (member.get().getMemberId() == 1) {
@@ -103,15 +107,20 @@ public class QuestionService {
         } else if (question.getSecretStatus() == Question.SecretStatus.SECRET) { // 비밀글인 경우
             // 조회하는 회원이 해당 비밀 게시글의 작성자이거나 관리자인 경우
             if (question.getMember().getMemberId() == member.getMemberId() || question.getMember().getEmail().equals("admin@gmail.com")) {
-                question.setViews(question.getViews() + 1); // 조회수 증가
+                addViews(question); // 조회수 증가
                 return question;
             }else{
                 throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
             }
         }else{ // 공개글인 경우 그냥 조회수 증가
-            question.setViews(question.getViews() + 1);
+            addViews(question); // 조회수 증가
             return question;
         }
+    }
+
+    private void addViews(Question question) {
+        question.setViews(question.getViews() + 1);
+        questionRepository.save(question);
     }
 
 }
