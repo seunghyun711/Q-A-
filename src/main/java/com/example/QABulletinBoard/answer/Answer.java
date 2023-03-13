@@ -35,4 +35,16 @@ public class Answer {
     @Column(nullable = false)
     private LocalDateTime modifiedAt = LocalDateTime.now(); // 질문 수정 시간
 
+    public enum SecretStatus{
+        PUBLIC("공개글"),
+        SECRET("비밀글");
+
+        @Getter
+        private String status;
+
+        SecretStatus(String status) {
+            this.status = status;
+        }
+    }
+
 }
