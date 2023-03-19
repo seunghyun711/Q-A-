@@ -19,6 +19,8 @@ public class Answer {
     private long answerId; // id
 
     @Column(nullable = false)
+    private String title; // 답변 제목
+    @Column(nullable = false)
     private String content; // 답변 내용
 
     @ManyToOne
@@ -35,14 +37,18 @@ public class Answer {
     @Column(nullable = false)
     private LocalDateTime modifiedAt = LocalDateTime.now(); // 질문 수정 시간
 
-    public enum SecretStatus{
+    @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
+    private AnswerSecretStatus secretStatus;
+
+    public enum AnswerSecretStatus {
         PUBLIC("공개글"),
         SECRET("비밀글");
 
         @Getter
         private String status;
 
-        SecretStatus(String status) {
+        AnswerSecretStatus(String status) {
             this.status = status;
         }
     }
