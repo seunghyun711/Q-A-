@@ -49,6 +49,21 @@ public class AnswerService {
         return answer;
     }
 
+    /*
+    답변 수정
+    1. 답변 수정자와 답변 작성자가 동일 인물인지 검증
+    2. 수정
+     */
+    public Answer updateAnswer(Answer answer) {
+        // 1. 답변 수정자와 답변 작성자가 동일 인물인지 검증
+        Answer findAnswer = checkAnswerWriter(answer);
+
+        // 2. 수정
+        Optional.ofNullable(answer.getTitle()).ifPresent(title -> findAnswer.setTitle(title));
+        Optional.ofNullable(answer.getContent()).ifPresent(content -> findAnswer.setContent(content));
+        return answerRepository.save(findAnswer);
+    }
+
     public void verifiedAnswer(Answer answer) {
         Optional<Question> optionalQuestion = questionRepository.findById(answer.getQuestion().getQuestionId());
         Question question = optionalQuestion.orElseThrow(() ->
@@ -75,6 +90,18 @@ public class AnswerService {
             question.setQuestionStatus(Question.QuestionStatus.QUESTION_ANSWERED);
             questionRepository.save(question);
         }
+    }
+
+    private Answer checkAnswerWriter(Answer answer) {
+        Optional<Answer> optionalAnswer = answerRepository.findById(answer.getAnswerId());
+        Answer findAnswer = optionalAnswer.orElseThrow(() ->
+                new BusinessLogicException(ExceptionCode.QUESTION_NOT_FOUND));
+        Optional<Member> optionalMember = memberRepository.findById(answer.getMember().getMemberId());
+
+        if (answer.getMember().getMemberId() != findAnswer.getAnswerId()) {
+            throw new BusinessLogicException(ExceptionCode.MEMBER_NOT_MATCHED);
+        }
+        return findAnswer;
     }
 
 }

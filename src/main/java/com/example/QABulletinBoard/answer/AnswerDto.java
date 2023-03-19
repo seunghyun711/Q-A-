@@ -26,7 +26,21 @@ public class AnswerDto {
         private String title;
         @NotBlank(message = "답변을 입력해 주세요.")
         private String content;
+    }
 
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class Patch{
+        @Positive
+        private long questionId;
+        @Positive
+        private long memberId;
+        @Positive
+        private long answerId;
+        private String title;
+        private String content;
 
     }
 }

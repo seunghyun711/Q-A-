@@ -31,4 +31,14 @@ public class AnswerController {
 
         return ResponseEntity.created(location).build();
     }
+
+    // 답변 수정
+    @PatchMapping("/{answer-id}")
+    public ResponseEntity patchAnswer(@PathVariable("answer-id") @Positive long answerId,
+                                      @Valid @RequestBody AnswerDto.Patch patch) {
+        Answer answer = answerService.updateAnswer(mapper.answerPatchDtoToAnswer(patch));
+        URI location = UriCreator.createUri(ANSWER_DEFAULT_URL, answer.getAnswerId());
+
+        return ResponseEntity.ok(location);
+    }
 }
