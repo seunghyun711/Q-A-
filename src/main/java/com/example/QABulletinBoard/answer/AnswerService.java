@@ -64,6 +64,18 @@ public class AnswerService {
         return answerRepository.save(findAnswer);
     }
 
+    /*
+    답변 삭제
+
+     */
+    public void deleteAnswer(long answerId, long memberId) {
+        Answer answer = new Answer();
+        answer.setAnswerId(answerId);
+
+        Answer deleteAnswer = checkDeleteAnswer(answerId, memberId);
+        answerRepository.delete(answer);
+    }
+
     public void verifiedAnswer(Answer answer) {
         Optional<Question> optionalQuestion = questionRepository.findById(answer.getQuestion().getQuestionId());
         Question question = optionalQuestion.orElseThrow(() ->
@@ -103,5 +115,21 @@ public class AnswerService {
         }
         return findAnswer;
     }
+
+    private Answer checkDeleteAnswer(long answerId, long memberId) {
+        Optional<Answer> optionalAnswer = answerRepository.findById(answerId);
+        Answer findAnswer = optionalAnswer.orElseThrow(() ->
+                new BusinessLogicException(ExceptionCode.ANSWER_NOT_FOUND));
+
+        Optional<Member> optionalMember = memberRepository.findById(memberId);
+        Member findMember = optionalMember.orElseThrow(() ->
+                new BusinessLogicException(ExceptionCode.MEMBER_NOT_FOUND));
+
+        if (findAnswer.getMember().getMemberId() != memberId && !findMember.getEmail().equals("admin@gmain.com")) {
+            throw new BusinessLogicException(ExceptionCode.ACCESS_DENIED);
+        }
+        return findAnswer;
+    }
+
 
 }

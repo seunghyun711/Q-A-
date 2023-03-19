@@ -41,4 +41,10 @@ public class AnswerController {
 
         return ResponseEntity.ok(location);
     }
+
+    @DeleteMapping("/{answer-id}")
+    public void deleteAnswer(@PathVariable("answer-id") @Positive long answerId,
+                                       @RequestParam @Positive long memberId) {
+        answerService.deleteAnswer(answerId, memberId);
+    }
 }
