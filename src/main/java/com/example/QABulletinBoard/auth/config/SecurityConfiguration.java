@@ -49,4 +49,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         return http.build();
     }
 
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
 }
