@@ -21,3 +21,7 @@ logging:
       springframework:
         orm:
           jpa: DEBUG
+
+mail:
+  address:
+    admin: ${ADMIN_MAIL} # 관리자 이메일
