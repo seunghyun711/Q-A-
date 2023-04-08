@@ -28,6 +28,10 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
+    // User의 권한 정보 테이블과 매핑되는 정보
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> roles = new ArrayList<>();
+
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.MEMBER;
