@@ -1,28 +1,43 @@
 package com.example.QABulletinBoard.member;
 
+import com.example.QABulletinBoard.auth.utils.CustomAuthorityUtils;
 import com.example.QABulletinBoard.exception.BusinessLogicException;
 import com.example.QABulletinBoard.exception.ExceptionCode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 //@Transactional
 public class MemberService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final CustomAuthorityUtils authorityUtils;
 
-    public MemberService(MemberRepository memberRepository) {
+    public MemberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder, CustomAuthorityUtils authorityUtils) {
         this.memberRepository = memberRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.authorityUtils = authorityUtils;
     }
 
     /*
-     <회원 등록>
-     1. 중복 이메일 검증
-     */
+         <회원 등록>
+         1. 중복 이메일 검증
+         */
     public Member createMember(Member member) {
         verifyExistsEmail(member.getEmail()); // 중복 이메일 검증
-        return memberRepository.save(member);
+
+        String encryptedPassword = passwordEncoder.encode(member.getPassword());// 패스워드 암호화
+        member.setPassword(encryptedPassword); // 암호화된 패스워드를 password 필드에 할당
+
+        // Role을 DB에 저장
+        List<String> roles = authorityUtils.createRoles(member.getEmail());
+        member.setRoles(roles);
+        Member savedMember = memberRepository.save(member);
+        return savedMember;
 
     }
 
