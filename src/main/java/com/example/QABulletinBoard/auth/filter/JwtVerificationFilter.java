@@ -2,6 +2,7 @@ package com.example.QABulletinBoard.auth.filter;
 
 import com.example.QABulletinBoard.auth.jwt.JwtTokenizer;
 import com.example.QABulletinBoard.auth.utils.CustomAuthorityUtils;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.Signature;
+import java.security.SignatureException;
 import java.util.List;
 import java.util.Map;
 
@@ -31,9 +34,14 @@ public class JwtVerificationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        Map<String, Object> claims = verifyJws(request);// JWT 검증할 때 사용하는 메서드
-        setAuthenticationToContext(claims); // Authentication 객체를 SecurityContext에 저장하기 위한 메서드
-
+        try {
+            Map<String, Object> claims = verifyJws(request);// JWT 검증할 때 사용하는 메서드
+            setAuthenticationToContext(claims); // Authentication 객체를 SecurityContext에 저장하기 위한 메서드
+        } catch (ExpiredJwtException ee) {
+            request.setAttribute("exception", ee);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
+        }
         filterChain.doFilter(request, response); // 다음 필터 호출
     }
 
