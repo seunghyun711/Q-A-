@@ -2,6 +2,8 @@ package com.example.QABulletinBoard.auth.config;
 
 import com.example.QABulletinBoard.auth.filter.JwtAuthenticationFilter;
 import com.example.QABulletinBoard.auth.filter.JwtVerificationFilter;
+import com.example.QABulletinBoard.auth.handler.MemberAccessDeniedHandler;
+import com.example.QABulletinBoard.auth.handler.MemberAuthenticationEntryPoint;
 import com.example.QABulletinBoard.auth.handler.MemberAuthenticationFailureHandler;
 import com.example.QABulletinBoard.auth.handler.MemberAuthenticationSuccessHandler;
 import com.example.QABulletinBoard.auth.jwt.JwtTokenizer;
@@ -50,6 +52,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .apply(new CustomFilterConfigurer()) // Custom된 Configuration 추가
                 .and()
                 .exceptionHandling()
+                .authenticationEntryPoint(new MemberAuthenticationEntryPoint())
+                .accessDeniedHandler(new MemberAccessDeniedHandler())
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
                         .antMatchers(HttpMethod.POST, "/*/members").permitAll()
