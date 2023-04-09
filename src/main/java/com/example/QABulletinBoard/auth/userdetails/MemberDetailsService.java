@@ -41,11 +41,12 @@ public class MemberDetailsService implements UserDetailsService {
             setMemberId(member.getMemberId());
             setEmail(member.getEmail());
             setPassword(member.getPassword());
-            setRole(member.getRole());
+            setRoles(member.getRoles()); // db에서 조회한 List<String> roles 전달
         }
 
         @Override
         public Collection<? extends GrantedAuthority> getAuthorities() {
+            // DB에 저장된 Role 정보로 User 권한 목록 생성
             return authorityUtils.createAuthorities(this.getRoles());
         }
 
