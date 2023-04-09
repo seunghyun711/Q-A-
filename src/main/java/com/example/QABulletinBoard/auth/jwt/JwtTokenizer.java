@@ -4,6 +4,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -12,6 +14,20 @@ import java.util.Date;
 import java.util.Map;
 
 public class JwtTokenizer {
+    // JWT 생성/검증 시 사용되는 SecretKey 정보
+    @Getter
+    @Value("${jwt.key}")
+    private String secretKey;
+
+    // Access Token 만료 시간 정보
+    @Getter
+    @Value("${jwt.access-token-expiration-minntes}")
+    private int accessTokenExpirationMinutes;
+
+    // Refresh Token 만료 시간 정보
+    @Getter
+    @Value("${jwt.refresh-token-expiration-minutes}")
+    private int refreshTokenExpirationMinutes;
 
     // Plain text의 SecretKey를 Base64 형식의 문자열로 인코딩
     public String encodeBase64SecretKey(String secretKey) {
