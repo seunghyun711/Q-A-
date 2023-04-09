@@ -1,12 +1,16 @@
 package com.example.QABulletinBoard.auth.config;
 
+import com.example.QABulletinBoard.auth.filter.JwtAuthenticationFilter;
+import com.example.QABulletinBoard.auth.jwt.JwtTokenizer;
 import com.example.QABulletinBoard.auth.utils.CustomAuthorityUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,6 +25,12 @@ import java.util.Arrays;
 @EnableWebSecurity(debug = false)
 public class SecurityConfiguration implements WebMvcConfigurer {
 
+    private final CustomAuthorityUtils authorityUtils;
+
+    public SecurityConfiguration(CustomAuthorityUtils authorityUtils) {
+        this.authorityUtils = authorityUtils;
+    }
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -30,6 +40,8 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .cors(Customizer.withDefaults())
                 .formLogin().disable()
                 .httpBasic().disable()
+                .apply(new CustomFilterConfigurer()) // Custom된 Configuration 추가
+                .and()
                 .exceptionHandling()
                 .and()
                 .authorizeHttpRequests(authorize -> authorize
@@ -70,6 +82,25 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // CorsConfigurationSource의 구현 클래스 객체 생성
         source.registerCorsConfiguration("/**",configuration); // 모든 URL에 위 CORS 정책 적용
         return source;
+    }
+
+    // 이전에 구현한 JwtAuthenticationFilter를 등록하는 메서드
+    public class CustomFilterConfigurer extends AbstractHttpConfigurer<CustomFilterConfigurer, HttpSecurity> {
+        @Override
+        public void configure(HttpSecurity builder) throws Exception{
+            // AuthenticationManager 객체를 얻는다.
+            AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+
+            JwtAuthenticationFilter jwtAuthenticationFilter =  new JwtAuthenticationFilter(authenticationManager, jwtTokenizer());
+            jwtAuthenticationFilter.setFilterProcessesUrl("/QA/auth/login");
+
+            builder.addFilter(jwtAuthenticationFilter); // JwtAuthenticationFilter를 스프링 시큐리티 필터에 추가
+        }
+    }
+
+    @Bean
+    public JwtTokenizer jwtTokenizer(){
+        return new JwtTokenizer();
     }
 
 }
