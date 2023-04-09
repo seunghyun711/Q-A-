@@ -1,6 +1,7 @@
 package com.example.QABulletinBoard.auth.config;
 
 import com.example.QABulletinBoard.auth.filter.JwtAuthenticationFilter;
+import com.example.QABulletinBoard.auth.filter.JwtVerificationFilter;
 import com.example.QABulletinBoard.auth.handler.MemberAuthenticationFailureHandler;
 import com.example.QABulletinBoard.auth.handler.MemberAuthenticationSuccessHandler;
 import com.example.QABulletinBoard.auth.jwt.JwtTokenizer;
@@ -13,6 +14,7 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -40,6 +42,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                 .and()
                 .csrf().disable() // CSRF 공격에 대한 스프링 시큐리티에 대한 설정 비활성화
                 .cors(Customizer.withDefaults())
+                // 세션을 설정하지 않도록 설정
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .formLogin().disable()
                 .httpBasic().disable()
                 .apply(new CustomFilterConfigurer()) // Custom된 Configuration 추가
@@ -98,7 +103,12 @@ public class SecurityConfiguration implements WebMvcConfigurer {
             // AuthenticationSuccess/FailureHandler 추가
             jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
             jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
-            builder.addFilter(jwtAuthenticationFilter); // JwtAuthenticationFilter를 스프링 시큐리티 필터에 추가
+
+            // JwtVerificationFilter 추가
+            JwtVerificationFilter jwtVerificationFilter = new JwtVerificationFilter(jwtTokenizer(), authorityUtils);
+
+            builder.addFilter(jwtAuthenticationFilter)// JwtAuthenticationFilter를 스프링 시큐리티 필터에 추가
+                    .addFilterAfter(jwtVerificationFilter, JwtAuthenticationFilter.class); // JwtAuthenticationFilter 뒤에 JwtVerificationFilter 추가
         }
     }
 
