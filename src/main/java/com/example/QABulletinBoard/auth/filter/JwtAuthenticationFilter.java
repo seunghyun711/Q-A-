@@ -11,8 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +49,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request,
                                             HttpServletResponse response,
                                             FilterChain chain,
-                                            Authentication authResult) {
+                                            Authentication authResult) throws ServletException, IOException {
         // Member 객체를 얻는다. AuthenticationManager내에서 인증이 성공하면 인증된 Authentication객체가 생성되어 principal 필드에 Member 객체가 할당된다.
         Member member = (Member) authResult.getPrincipal();
 
@@ -57,7 +59,9 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         // 클라이언트에서 백엔드 애플리케이션에 요청을 보낼 때마다 request Header에 추가하여 클라이언트 측의 자격증명에 사용
         response.setHeader("Authorization", "Bearer" + accessToken);
         // Refresh Token 추가
-        response.setHeader("Refresh", refreshToken); // 4-5
+        response.setHeader("Refresh", refreshToken);
+
+        this.getSuccessHandler().onAuthenticationSuccess(request,response,authResult);
     }
 
     // Access Token 생성 메서드
