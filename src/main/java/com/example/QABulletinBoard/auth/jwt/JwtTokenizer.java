@@ -21,7 +21,7 @@ public class JwtTokenizer {
 
     // Access Token 만료 시간 정보
     @Getter
-    @Value("${jwt.access-token-expiration-minntes}")
+    @Value("${jwt.access-token-expiration-minutes}")
     private int accessTokenExpirationMinutes;
 
     // Refresh Token 만료 시간 정보
