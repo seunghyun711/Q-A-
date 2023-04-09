@@ -1,5 +1,7 @@
 package com.example.QABulletinBoard.auth.jwt;
 
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
@@ -72,7 +74,7 @@ public class JwtTokenizer {
         return key;
     }
 
-    // JWT 검증 메서드
+    // JWT 검증 메서드(단순 검증)
     public void verifySignature(String jws, String base64EncodedSecretKey) {
         Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
 
@@ -80,6 +82,16 @@ public class JwtTokenizer {
                 .setSigningKey(key) // 서명에 상요된 Secret Key 생성
                 .build()
                 .parseClaimsJws(jws); // JWT 파싱하여 Claims를 얻는다.
+    }
+    // 검증 후 Claims 반환
+    public Jws<Claims> getClaims(String jws, String base64EncodedSecretKey) {
+        Key key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
+
+        Jws<Claims> claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(jws);
+        return claims;
     }
 
     public Date getTokenExpiration(int expirationMinutes) {
@@ -89,6 +101,8 @@ public class JwtTokenizer {
 
         return expiration;
     }
+
+
 
 
 }
