@@ -1,6 +1,8 @@
 package com.example.QABulletinBoard.auth.config;
 
 import com.example.QABulletinBoard.auth.filter.JwtAuthenticationFilter;
+import com.example.QABulletinBoard.auth.handler.MemberAuthenticationFailureHandler;
+import com.example.QABulletinBoard.auth.handler.MemberAuthenticationSuccessHandler;
 import com.example.QABulletinBoard.auth.jwt.JwtTokenizer;
 import com.example.QABulletinBoard.auth.utils.CustomAuthorityUtils;
 import org.springframework.context.annotation.Bean;
@@ -93,7 +95,9 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
             JwtAuthenticationFilter jwtAuthenticationFilter =  new JwtAuthenticationFilter(authenticationManager, jwtTokenizer());
             jwtAuthenticationFilter.setFilterProcessesUrl("/QA/auth/login");
-
+            // AuthenticationSuccess/FailureHandler 추가
+            jwtAuthenticationFilter.setAuthenticationSuccessHandler(new MemberAuthenticationSuccessHandler());
+            jwtAuthenticationFilter.setAuthenticationFailureHandler(new MemberAuthenticationFailureHandler());
             builder.addFilter(jwtAuthenticationFilter); // JwtAuthenticationFilter를 스프링 시큐리티 필터에 추가
         }
     }

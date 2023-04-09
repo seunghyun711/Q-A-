@@ -21,7 +21,6 @@ public class MemberController {
         this.memberService = memberService;
         this.mapper = mapper;
     }
-
     @PostMapping
     public ResponseEntity postMember(@Valid @RequestBody MemberPostDto memberPostDto) {
         Member member = mapper.memberPostDtoToMember(memberPostDto);
