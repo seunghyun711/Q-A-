@@ -18,7 +18,7 @@ import java.util.List;
 @Validated
 @RequestMapping("/QA/questions")
 public class QuestionController {
-    private final static String QUESTION_DEFAULT_URL = "/QA/questions";
+    public final static String QUESTION_DEFAULT_URL = "/QA/questions";
     private final QuestionService questionService;
     private final QuestionMapper mapper;
 
@@ -27,15 +27,15 @@ public class QuestionController {
         this.mapper = mapper;
     }
 
-    // 질문 등록
-    @PostMapping
-    public ResponseEntity createQuestion(@Valid @RequestBody QuestionDto.Post questionPostDto) {
-        Question question = mapper.questionPostDtoToQuestion(questionPostDto);
-        questionService.createQuestion(question);
-        URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, question.getQuestionId());
-
-        return ResponseEntity.created(location).build();
-    }
+    // 질문 등록 -> MemberController로 이동
+//    @PostMapping
+//    public ResponseEntity createQuestion(@Valid @RequestBody QuestionDto.Post questionPostDto) {
+//        Question question = mapper.questionPostDtoToQuestion(questionPostDto);
+//        questionService.createQuestion(question);
+//        URI location = UriCreator.createUri(QUESTION_DEFAULT_URL, question.getQuestionId());
+//
+//        return ResponseEntity.created(location).build();
+//    }
 
     @PatchMapping("/{question-id}")
     public ResponseEntity patchQuestion(@PathVariable("question-id") @Positive long questionId,
