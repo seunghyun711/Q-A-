@@ -33,6 +33,10 @@ public class QuestionDto {
         @NotNull(message = "글의 공개범위를 선택하세요.")
         private boolean secretOrPublic;
 
+        public void addMemberId(long memberId){
+            this.memberId = memberId;
+        }
+
     }
 
     @AllArgsConstructor
